@@ -1,48 +1,87 @@
-# UNNPI Data Toolkit (AWS Workspace Edition)
+# UNNPI Data Toolkit
 ## S3 Download + PostgreSQL Import for JEDMICS & CDMD-OA Data
 
-This toolkit runs on your **AWS Workspace** to download UNNPI database dumps from the GovCloud S3 bucket and import them into a local PostgreSQL database. No GFE admin rights needed.
+This toolkit provides scripts for downloading UNNPI database dumps from the GovCloud S3 bucket and importing them into PostgreSQL. Available in two editions:
+
+- **AWS Workspace Edition** (PowerShell scripts for Windows Workspaces)
+- **CloudShell Edition** (Bash scripts for AWS CloudShell)
 
 ## Prerequisites
+
+### AWS Workspace Edition
 - AWS Workspace with network access to GovCloud
 - Python 3.8+ (usually pre-installed on Workspaces)
 - IAM access keys for the `nnpi-mbps` user (sent via DoD SAFE)
 
+### CloudShell Edition
+- AWS CloudShell access (pre-authenticated with your AWS account)
+- Python 3.x (pre-installed in CloudShell)
+
 ## Quick Start
 
-### Step 1: Install & Configure AWS CLI
+### AWS Workspace Edition (Windows PowerShell)
+
+#### Step 1: Install & Configure AWS CLI
 ```powershell
 .\01_setup_aws_cli.ps1
 ```
-Sets up AWS CLI with a dedicated `unnpi` profile for the GovCloud bucket. Won't interfere with your Workspace's existing AWS credentials.
+Sets up AWS CLI with a dedicated `unnpi` profile for the GovCloud bucket.
 
-### Step 2: Download Data from S3
+#### Step 2: Download Data from S3
 ```powershell
 .\02_download_s3_data.ps1              # download everything
 .\02_download_s3_data.ps1 -ListOnly    # just see what's there first
 ```
-Downloads to `%USERPROFILE%\UNNPI_Data` by default. Check disk space first — JEDMICS dumps can be large.
+Downloads to `%USERPROFILE%\UNNPI_Data` by default.
 
-### Step 3: Install PostgreSQL and Set Up Database
+#### Step 3: Install PostgreSQL and Set Up Database
 ```powershell
 .\03_setup_postgresql.ps1
 ```
-If PostgreSQL isn't installed, the script gives you 3 options including a portable/zip install that needs zero admin rights.
 
-### Step 4: Import Data into PostgreSQL
+#### Step 4: Import Data into PostgreSQL
 ```powershell
 pip install psycopg2-binary
 python 04_import_to_postgres.py
-python 04_import_to_postgres.py --scan-only    # just analyze files without importing
 ```
-Handles CSV/SQL files directly. For Oracle .dmp files, see the conversion guide the script prints.
 
-### Step 5: Run Queries / Get Data Counts
+#### Step 5: Run Queries / Get Data Counts
 ```powershell
-python 05_query_data.py                           # run all reports
-python 05_query_data.py --report collision         # just collision analysis
-python 05_query_data.py --report counts            # just drawing counts
-python 05_query_data.py --export-csv               # save results as CSVs for Ely
+python 05_query_data.py
+```
+
+### CloudShell Edition (AWS CloudShell)
+
+#### Step 1: Verify AWS CLI Setup
+```bash
+chmod +x 01_setup_aws_cli_cloudshell.sh
+./01_setup_aws_cli_cloudshell.sh
+```
+AWS CLI is pre-installed and authenticated in CloudShell.
+
+#### Step 2: Download Data from S3
+```bash
+chmod +x 02_download_s3_data_cloudshell.sh
+./02_download_s3_data_cloudshell.sh
+```
+Downloads to `~/UNNPI_Data`.
+
+#### Step 3: Install PostgreSQL and Set Up Database
+```bash
+chmod +x 03_setup_postgresql_cloudshell.sh
+./03_setup_postgresql_cloudshell.sh
+```
+Installs PostgreSQL on the CloudShell instance.
+
+#### Step 4: Import Data into PostgreSQL
+```bash
+pip install psycopg2-binary
+python 04_import_to_postgres.py --data-dir ~/UNNPI_Data --db unnpi_jedmics --host localhost --user postgres --password postgres
+```
+
+#### Step 5: Run Queries / Get Data Counts
+```bash
+python 05_query_data.py --db unnpi_jedmics --host localhost --user postgres --password postgres
 ```
 
 ## S3 Bucket Structure
