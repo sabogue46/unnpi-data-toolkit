@@ -52,6 +52,8 @@ python 05_query_data.py
 
 ### CloudShell Edition (AWS CloudShell)
 
+**⚠️ Storage Warning:** CloudShell has limited storage (~1GB). The UNNPI data files may be large. Consider using an EC2 instance for full processing.
+
 #### Step 1: Verify AWS CLI Setup
 ```bash
 chmod +x 01_setup_aws_cli_cloudshell.sh
@@ -64,14 +66,17 @@ AWS CLI is pre-installed and authenticated in CloudShell.
 chmod +x 02_download_s3_data_cloudshell.sh
 ./02_download_s3_data_cloudshell.sh
 ```
-Downloads to `~/UNNPI_Data`.
+**Options due to storage limits:**
+- Download specific files only
+- Download to another S3 bucket (recommended)
+- Use EC2 instance with larger storage
 
 #### Step 3: Install PostgreSQL and Set Up Database
 ```bash
 chmod +x 03_setup_postgresql_cloudshell.sh
 ./03_setup_postgresql_cloudshell.sh
 ```
-Installs PostgreSQL on the CloudShell instance.
+Installs PostgreSQL on the CloudShell instance (may not persist).
 
 #### Step 4: Import Data into PostgreSQL
 ```bash
@@ -83,6 +88,35 @@ python 04_import_to_postgres.py --data-dir ~/UNNPI_Data --db unnpi_jedmics --hos
 ```bash
 python 05_query_data.py --db unnpi_jedmics --host localhost --user postgres --password postgres
 ```
+
+### Alternative: Use EC2 Instance (Recommended for Large Datasets)
+
+For processing large UNNPI datasets, launch an EC2 instance:
+
+1. **Launch EC2 Instance:**
+   - AMI: Amazon Linux 2
+   - Instance Type: t3.medium or larger
+   - Storage: 50GB+ EBS volume
+   - Region: us-gov-west-1 (GovCloud)
+
+2. **Install Git and Clone Toolkit:**
+   ```bash
+   sudo yum update -y
+   sudo yum install -y git
+   git clone https://github.com/sabogue46/unnpi-data-toolkit.git
+   cd unnpi-data-toolkit
+   ```
+
+3. **Run the Scripts:**
+   ```bash
+   chmod +x *.sh
+   ./01_setup_aws_cli_cloudshell.sh
+   ./02_download_s3_data_cloudshell.sh
+   ./03_setup_postgresql_cloudshell.sh
+   pip install psycopg2-binary
+   python 04_import_to_postgres.py
+   python 05_query_data.py
+   ```
 
 ## S3 Bucket Structure
 ```
