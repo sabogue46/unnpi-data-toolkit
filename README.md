@@ -1,10 +1,11 @@
 # UNNPI Data Toolkit
 ## S3 Download + PostgreSQL Import for JEDMICS & CDMD-OA Data
 
-This toolkit provides scripts for downloading UNNPI database dumps from the GovCloud S3 bucket and importing them into PostgreSQL. Available in two editions:
+This toolkit provides scripts for downloading UNNPI database dumps from the GovCloud S3 bucket and importing them into PostgreSQL. Available in multiple editions:
 
 - **AWS Workspace Edition** (PowerShell scripts for Windows Workspaces)
 - **CloudShell Edition** (Bash scripts for AWS CloudShell)
+- **Local/GFE Edition** (Cross-platform scripts for local machines)
 
 ## Prerequisites
 
@@ -16,6 +17,12 @@ This toolkit provides scripts for downloading UNNPI database dumps from the GovC
 ### CloudShell Edition
 - AWS CloudShell access (pre-authenticated with your AWS account)
 - Python 3.x (pre-installed in CloudShell)
+
+### Local/GFE Edition
+- Local machine with internet access to GovCloud
+- Python 3.8+ installed
+- IAM access keys for the `nnpi-mbps` user (sent via DoD SAFE)
+- Sufficient local storage for data files
 
 ## Quick Start
 
@@ -47,6 +54,51 @@ python 04_import_to_postgres.py
 
 #### Step 5: Run Queries / Get Data Counts
 ```powershell
+python 05_query_data.py
+```
+
+### Local/GFE Edition (Cross-platform)
+
+#### Step 1: Install & Configure AWS CLI
+```bash
+chmod +x 01_setup_aws_cli_local.sh
+./01_setup_aws_cli_local.sh
+```
+Installs AWS CLI (if needed) and configures the `unnpi` profile for GovCloud access.
+
+#### Step 2: Download Data from S3
+```bash
+chmod +x 02_download_s3_data_local.sh
+./02_download_s3_data_local.sh
+```
+Downloads to `~/UNNPI_Data` with options for full download or specific files.
+
+#### Step 3: Install PostgreSQL Locally
+**Windows:**
+- Download PostgreSQL from: https://www.postgresql.org/download/windows/
+- Install with default settings
+
+**macOS:**
+```bash
+brew install postgresql
+brew services start postgresql
+```
+
+**Linux:**
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+```
+
+#### Step 4: Import Data into PostgreSQL
+```bash
+pip install psycopg2-binary
+python 04_import_to_postgres.py --data-dir ~/UNNPI_Data
+```
+
+#### Step 5: Run Queries / Get Data Counts
+```bash
 python 05_query_data.py
 ```
 
