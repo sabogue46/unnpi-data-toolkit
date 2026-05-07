@@ -91,32 +91,50 @@ python 05_query_data.py --db unnpi_jedmics --host localhost --user postgres --pa
 
 ### Alternative: Use EC2 Instance (Recommended for Large Datasets)
 
-For processing large UNNPI datasets, launch an EC2 instance:
+For processing large UNNPI datasets, launch an EC2 instance in GovCloud:
 
-1. **Launch EC2 Instance:**
-   - AMI: Amazon Linux 2
-   - Instance Type: t3.medium or larger
-   - Storage: 50GB+ EBS volume
-   - Region: us-gov-west-1 (GovCloud)
+#### Find Correct AMI ID in GovCloud:
+```bash
+# In CloudShell, find Amazon Linux 2 AMI ID for us-gov-west-1
+aws ec2 describe-images --owners amazon --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" "Name=state,Values=available" --region us-gov-west-1 --query 'Images | sort_by(@, &CreationDate) | [-1].ImageId' --output text
+```
 
-2. **Install Git and Clone Toolkit:**
-   ```bash
-   sudo yum update -y
-   sudo yum install -y git
-   git clone https://github.com/sabogue46/unnpi-data-toolkit.git
-   cd unnpi-data-toolkit
-   ```
+#### Launch EC2 Instance:
+1. **Region**: us-gov-west-1 (GovCloud)
+2. **AMI**: Use the ID from the command above (Amazon Linux 2)
+3. **Instance Type**: t3.medium or larger
+4. **Storage**: 50GB+ EBS volume (gp3 recommended)
+5. **Security Group**: Allow SSH (port 22) from your IP
+6. **Key Pair**: Create or use existing key pair
 
-3. **Run the Scripts:**
-   ```bash
-   chmod +x *.sh
-   ./01_setup_aws_cli_cloudshell.sh
-   ./02_download_s3_data_cloudshell.sh
-   ./03_setup_postgresql_cloudshell.sh
-   pip install psycopg2-binary
-   python 04_import_to_postgres.py
-   python 05_query_data.py
-   ```
+#### Connect and Setup:
+```bash
+# SSH to your instance
+ssh -i your-key.pem ec2-user@your-instance-ip
+
+# Update system and install dependencies
+sudo yum update -y
+sudo yum install -y git postgresql postgresql-server postgresql-devel python3-pip
+
+# Clone toolkit
+git clone https://github.com/sabogue46/unnpi-data-toolkit.git
+cd unnpi-data-toolkit
+
+# Run the toolkit
+chmod +x *.sh
+./01_setup_aws_cli_cloudshell.sh
+./02_download_s3_data_cloudshell.sh
+./03_setup_postgresql_cloudshell.sh
+pip3 install psycopg2-binary
+python3 04_import_to_postgres.py
+python3 05_query_data.py
+```
+
+#### Alternative: Use AWS Console
+1. Go to EC2 Console in us-gov-west-1
+2. Click "Launch Instance"
+3. Search for "Amazon Linux 2" in the AMI catalog
+4. Complete the instance configuration as above
 
 ## S3 Bucket Structure
 ```
