@@ -2,6 +2,7 @@
 .env
 config.sh
 config.ps1
+CONTACTS.md
 *.pem
 *.key
 
