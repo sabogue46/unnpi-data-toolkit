@@ -12,7 +12,7 @@ This toolkit provides scripts for downloading UNNPI database dumps from the GovC
 ### AWS Workspace Edition
 - AWS Workspace with network access to GovCloud
 - Python 3.8+ (usually pre-installed on Workspaces)
-- IAM access keys for the `nnpi-mbps` user (sent via DoD SAFE)
+- IAM access keys for the UNNPI S3 user (sent via DoD SAFE)
 
 ### CloudShell Edition
 - AWS CloudShell access (pre-authenticated with your AWS account)
@@ -21,8 +21,29 @@ This toolkit provides scripts for downloading UNNPI database dumps from the GovC
 ### Local/GFE Edition
 - Local machine with internet access to GovCloud
 - Python 3.8+ installed
-- IAM access keys for the `nnpi-mbps` user (sent via DoD SAFE)
+- IAM access keys for the UNNPI S3 user (sent via DoD SAFE)
 - Sufficient local storage for data files
+
+## Configuration (do this first)
+
+The S3 bucket name is **not** hard-coded — you provide it via a local, git-ignored
+config file so it never gets committed to a public repo.
+
+**Windows / PowerShell:**
+```powershell
+Copy-Item config.example.ps1 config.ps1   # then edit config.ps1 with the real bucket name
+. .\config.ps1                            # dot-source it in each new shell
+```
+
+**Bash (Local/GFE or CloudShell):**
+```bash
+cp config.example.sh config.sh            # then edit config.sh with the real bucket name
+source ./config.sh                        # source it in each new shell
+```
+
+The scripts read `UNNPI_S3_BUCKET` (and optionally `UNNPI_AWS_REGION`,
+`UNNPI_AWS_PROFILE`) from the environment and will stop with a clear error if the
+bucket is not set.
 
 ## Quick Start
 
@@ -190,7 +211,7 @@ python3 05_query_data.py
 
 ## S3 Bucket Structure
 ```
-s3://YOUR-BUCKET-NAME/        (us-gov-west-1)
+s3://<your-bucket-name>/        (us-gov-west-1)
 ├── NNSY_20260311/           # Norfolk JEDMICS (Rehearsal 1 cut, uploaded 3/17)
 ├── NNSY/                    # Norfolk JEDMICS (older)
 ├── test/                    # Puget Sound JEDMICS
@@ -198,9 +219,15 @@ s3://YOUR-BUCKET-NAME/        (us-gov-west-1)
 ```
 
 ## Key Contacts
-- **S3 Access/IAM**: REDACTED (REDACTED)
-- **NNSY JEDMICS**: REDACTED (REDACTED, REDACTED)
-- **PSNS JEDMICS**: REDACTED (REDACTED, REDACTED)
-- **CDMD-OA**: REDACTED (REDACTED)
-- **Beast Code S3/Cyber**: REDACTED (REDACTED)
-- **Beast Code Dev (CSV exports)**: REDACTED
+
+> Contact names, emails, and phone numbers are **not stored in this repository**.
+> Keep the point-of-contact list in an internal, non-public location (e.g. a
+> git-ignored `CONTACTS.md`, SharePoint, or your team wiki).
+
+Roles to track internally:
+- **S3 Access / IAM** — bucket access and IAM key issues
+- **NNSY JEDMICS** — Norfolk source data
+- **PSNS JEDMICS** — Puget Sound source data
+- **CDMD-OA** — CDMD-OA data (delivered via DoD SAFE)
+- **Beast Code (S3 / Cyber)** — bucket/cyber coordination
+- **Beast Code (Dev / CSV exports)** — CSV export requests

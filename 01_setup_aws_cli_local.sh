@@ -97,8 +97,8 @@ echo "  Testing GovCloud Access"
 echo "============================================"
 
 # Test access to the UNNPI bucket
-BUCKET="YOUR-BUCKET-NAME"
-REGION="us-gov-west-1"
+BUCKET="${UNNPI_S3_BUCKET:?Set UNNPI_S3_BUCKET first (copy config.example.sh -> config.sh and 'source ./config.sh')}"
+REGION="${UNNPI_AWS_REGION:-us-gov-west-1}"
 
 echo "Testing access to s3://${BUCKET}..."
 if aws s3 ls "s3://${BUCKET}/" --profile unnpi --region "${REGION}" &> /dev/null; then
@@ -108,7 +108,7 @@ else
     echo "[ERROR] Cannot access UNNPI S3 bucket"
     echo "Please check:"
     echo "1. Your IAM credentials are correct"
-    echo "2. You have permission to access the nnpi-mbps bucket"
+    echo "2. You have permission to access the UNNPI S3 bucket"
     echo "3. You're using the correct GovCloud region (us-gov-west-1)"
     exit 1
 fi

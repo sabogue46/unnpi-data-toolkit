@@ -42,7 +42,7 @@ This toolkit helps you download UNNPI database dumps from AWS GovCloud S3 and im
 
 ### What You Need
 - AWS account with GovCloud access
-- IAM access keys for the `nnpi-mbps` user (from DoD SAFE)
+- IAM access keys for the UNNPI S3 user (from DoD SAFE)
 - Browser with internet access
 - About 30 minutes
 
@@ -238,7 +238,7 @@ python 05_query_data.py \
 - 50GB+ free storage (check with: `df -h` on Linux/macOS or `wmic logicaldisk get freespace` on Windows)
 - Python 3.8+ installed
 - PostgreSQL (we'll help you install if needed)
-- IAM access keys for the `nnpi-mbps` user (from DoD SAFE)
+- IAM access keys for the UNNPI S3 user (from DoD SAFE)
 - AWS CLI (we'll help you install if needed)
 - About 1-2 hours (depending on download speed)
 
@@ -484,9 +484,7 @@ A `.dmp` file is an Oracle Data Pump export—a binary backup of an Oracle datab
 
 #### Option 1: Get CSV Files from Oracle Team ⭐ EASIEST
 
-Contact:
-- REDACTED (Beast Code)
-- REDACTED
+Contact: the Beast Code dev team (see your internal contact list)
 
 Ask for: CSV exports of all JEDMICS tables with headers
 
@@ -617,7 +615,7 @@ pip install psycopg2-binary
 
 ### ".dmp file detected - cannot import directly"
 
-This is expected. Follow "Handling .dmp Files" section above. Most likely option: ask REDACTED for CSV exports.
+This is expected. Follow "Handling .dmp Files" section above. Most likely option: ask the Beast Code dev team for CSV exports.
 
 ---
 

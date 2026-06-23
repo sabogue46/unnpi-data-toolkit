@@ -1,0 +1,27 @@
+# --- Secrets & local config (NEVER commit) ---
+.env
+config.sh
+config.ps1
+*.pem
+*.key
+
+# --- Downloaded UNNPI data & generated artifacts ---
+UNNPI_Data/
+*.dmp
+*.csv
+file_catalog.json
+download_log.txt
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

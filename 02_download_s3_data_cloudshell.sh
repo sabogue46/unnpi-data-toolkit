@@ -7,8 +7,8 @@
 # ============================================================
 
 DOWNLOAD_PATH="${HOME}/UNNPI_Data"
-BUCKET="YOUR-BUCKET-NAME"
-REGION="us-gov-west-1"
+BUCKET="${UNNPI_S3_BUCKET:?Set UNNPI_S3_BUCKET first (copy config.example.sh -> config.sh and 'source ./config.sh')}"
+REGION="${UNNPI_AWS_REGION:-us-gov-west-1}"
 
 echo "============================================"
 echo "  UNNPI S3 Data Download"
@@ -28,8 +28,8 @@ echo ""
 # ============================================================
 
 DOWNLOAD_PATH="${HOME}/UNNPI_Data"
-BUCKET="YOUR-BUCKET-NAME"
-REGION="us-gov-west-1"
+BUCKET="${UNNPI_S3_BUCKET:?Set UNNPI_S3_BUCKET first (copy config.example.sh -> config.sh and 'source ./config.sh')}"
+REGION="${UNNPI_AWS_REGION:-us-gov-west-1}"
 
 echo "============================================"
 echo "  UNNPI S3 Data Download"

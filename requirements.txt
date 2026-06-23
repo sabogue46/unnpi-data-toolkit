@@ -1,0 +1,4 @@
+# Python dependencies for the UNNPI Data Toolkit
+# Install with:  pip install -r requirements.txt
+
+psycopg2-binary>=2.9    # PostgreSQL driver used by 04_import_to_postgres.py / 05_query_data.py

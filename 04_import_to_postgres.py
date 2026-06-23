@@ -22,6 +22,7 @@ Usage:
 
 import argparse
 import os
+import re
 import sys
 import struct
 import json
@@ -167,6 +168,10 @@ def load_csv_to_postgres(csv_path, table_name, schema, conn, delimiter=","):
     create_sql = f'CREATE TABLE IF NOT EXISTS {schema}."{table_name}" ({col_defs})'
     cur.execute(create_sql)
 
+    # Make the load idempotent: clear any existing rows so re-running the
+    # importer replaces the data instead of appending duplicates.
+    cur.execute(f'TRUNCATE TABLE {schema}."{table_name}"')
+
     # Copy data
     with open(csv_path, "r", encoding="utf-8", errors="replace") as f:
         f.readline()  # skip header
@@ -191,13 +196,20 @@ def load_sql_to_postgres(sql_path, schema, conn):
     with open(sql_path, "r", encoding="utf-8", errors="replace") as f:
         sql = f.read()
 
-    # Basic Oracle -> PostgreSQL syntax fixes
-    sql = sql.replace("NUMBER", "NUMERIC")
-    sql = sql.replace("VARCHAR2", "VARCHAR")
-    sql = sql.replace("CLOB", "TEXT")
-    sql = sql.replace("BLOB", "BYTEA")
-    sql = sql.replace("SYSDATE", "NOW()")
-    sql = sql.replace("NVL(", "COALESCE(")
+    # Basic Oracle -> PostgreSQL syntax fixes.
+    # Use word boundaries so we only touch standalone type keywords, not
+    # identifiers that happen to contain them (e.g. a column named PART_NUMBER
+    # must NOT become PART_NUMERIC). Order matters: VARCHAR2 before VARCHAR.
+    type_fixes = [
+        (r"\bVARCHAR2\b", "VARCHAR"),
+        (r"\bNUMBER\b", "NUMERIC"),
+        (r"\bCLOB\b", "TEXT"),
+        (r"\bBLOB\b", "BYTEA"),
+        (r"\bSYSDATE\b", "NOW()"),
+        (r"\bNVL\s*\(", "COALESCE("),
+    ]
+    for pattern, repl in type_fixes:
+        sql = re.sub(pattern, repl, sql, flags=re.IGNORECASE)
 
     # Set search path to target schema
     cur.execute(f"SET search_path TO {schema}, public")
@@ -381,9 +393,9 @@ def print_conversion_guide(catalog):
     print()
     print("OPTION 1: Ask Beast Code for CSV exports (EASIEST)")
     print("-" * 50)
-    print("  REDACTED or REDACTED can export the JEDMICS tables")
+    print("  The Beast Code dev team can export the JEDMICS tables")
     print("  as CSV files from their Oracle instance. Then this script")
-    print("  can load them directly. Email David and ask for:")
+    print("  can load them directly. Ask them for:")
     print("    - CSV exports of all JEDMICS tables")
     print("    - Include headers in the CSV files")
     print("    - UTF-8 encoding")
@@ -414,7 +426,7 @@ def print_conversion_guide(catalog):
     print("    pip install oracledb")
     print("  Then modify 05_query_data.py to connect to Oracle instead.")
     print()
-    print("RECOMMENDED: Option 1 is fastest. Ask REDACTED for CSVs")
+    print("RECOMMENDED: Option 1 is fastest. Ask the Beast Code dev team for CSVs")
     print("of the key tables you need for the drawing counts.")
     print()
 

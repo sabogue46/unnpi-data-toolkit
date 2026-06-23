@@ -91,8 +91,14 @@ Write-Host "IMPORTANT: Your Workspace may already have AWS credentials" -Foregro
 Write-Host "configured for its own account. We need to set up a SEPARATE" -ForegroundColor Yellow
 Write-Host "profile for the UNNPI GovCloud bucket." -ForegroundColor Yellow
 Write-Host ""
-Write-Host "IAM user: nnpi-mbps" -ForegroundColor Yellow
-Write-Host "S3 bucket: s3://YOUR-BUCKET-NAME" -ForegroundColor Yellow
+$bucket = if ($env:UNNPI_S3_BUCKET) { $env:UNNPI_S3_BUCKET } else { "" }
+if (-not $bucket) {
+    Write-Host "[ERROR] S3 bucket not set. Copy config.example.ps1 -> config.ps1, fill it in," -ForegroundColor Red
+    Write-Host "        then dot-source it ('. .\config.ps1') before running this script." -ForegroundColor Red
+    exit 1
+}
+Write-Host "IAM user: (your UNNPI IAM user)" -ForegroundColor Yellow
+Write-Host "S3 bucket: s3://$bucket" -ForegroundColor Yellow
 Write-Host "Region: us-gov-west-1 (GovCloud)" -ForegroundColor Yellow
 Write-Host ""
 
@@ -162,7 +168,7 @@ Write-Host "     All toolkit scripts will use --profile $profileName" -Foregroun
 Write-Host ""
 Write-Host "Testing S3 connection..." -ForegroundColor Yellow
 try {
-    $result = aws s3 ls s3://YOUR-BUCKET-NAME/ --profile $profileName --region us-gov-west-1 2>&1
+    $result = aws s3 ls "s3://$bucket/" --profile $profileName --region us-gov-west-1 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[OK] Successfully connected to S3 bucket!" -ForegroundColor Green
         Write-Host ""
@@ -175,7 +181,7 @@ try {
         Write-Host "Common fixes:" -ForegroundColor Yellow
         Write-Host "  - Check that your access keys are correct"
         Write-Host "  - Your Workspace may need network route to GovCloud"
-        Write-Host "  - Contact REDACTED if IAM keys have expired"
+        Write-Host "  - Contact your S3/IAM point of contact if IAM keys have expired"
     }
 } catch {
     Write-Host "[ERROR] $($_.Exception.Message)" -ForegroundColor Red

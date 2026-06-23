@@ -8,11 +8,17 @@
 
 param(
     [string]$DownloadPath = "$env:USERPROFILE\UNNPI_Data",
-    [string]$Bucket = "YOUR-BUCKET-NAME",
-    [string]$Region = "us-gov-west-1",
-    [string]$Profile = "unnpi",
+    [string]$Bucket = $(if ($env:UNNPI_S3_BUCKET) { $env:UNNPI_S3_BUCKET } else { "" }),
+    [string]$Region = $(if ($env:UNNPI_AWS_REGION) { $env:UNNPI_AWS_REGION } else { "us-gov-west-1" }),
+    [string]$Profile = $(if ($env:UNNPI_AWS_PROFILE) { $env:UNNPI_AWS_PROFILE } else { "unnpi" }),
     [switch]$ListOnly  # Just list contents without downloading
 )
+
+if (-not $Bucket) {
+    Write-Host "[ERROR] S3 bucket not set. Copy config.example.ps1 -> config.ps1, fill it in," -ForegroundColor Red
+    Write-Host "        then dot-source it ('. .\config.ps1') or pass -Bucket <name>." -ForegroundColor Red
+    exit 1
+}
 
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "  UNNPI S3 Data Download" -ForegroundColor Cyan
@@ -151,7 +157,7 @@ Write-Host "  NNSY (Rehearsal 1): $nnsyDir"
 Write-Host "  PSNS:               $psnsDir"
 Write-Host ""
 Write-Host "NOTE: CDMD-OA data comes via DoD SAFE (not S3)." -ForegroundColor Yellow
-Write-Host "Check with REDACTED / REDACTED for that data." -ForegroundColor Yellow
+Write-Host "Check with the CDMD-OA and Beast Code points of contact for that data." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Next step: Run 03_setup_postgresql.ps1" -ForegroundColor Cyan
 
